@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股份减持工具——ByLook</title>
+</head>
+
+<body>
+    <h1>股份减持工具——ByLook</h1>
+
+    <!-- 所属交易所 -->
+    <label for="exchange">所属交易所：</label>
+    <select id="exchange">
+        <option value="szse">深圳证券交易所</option>
+        <option value="sse">上海证券交易所</option>
+    </select><br><br>
+
+    <!-- 身份类型 -->
+    <label for="identity">身份类型：</label>
+    <select id="identity">
+        <option value="majorShareholder">大股东（持有5%以上股份的股东、实际控制人）</option>
+        <option value="specificShareholder">特定股东（大股东以外持有上市公司首次公开发行前发行股份的股东）</option>
+        <option value="directorSupervisorOfficer">董监高（董事、监事、高级管理人员）</option>
+    </select><br><br>
+
+    <!-- 减持股份来源 -->
+    <label for="source">减持股份来源：</label>
+    <select id="source">
+        <option value="centralizedAuctionBought">集中竞价交易买入</option>
+        <option value="publicOfferingAcquired">参与公开发行股份取得</option>
+        <option value="preIPO">首次公开发行前发行的股份</option>
+    </select><br><br>
+
+    <!-- 是否为控股股东/实际控制人 -->
+    <label for="isControlling">是否为控股股东/实际控制人：</label>
+    <select id="isControlling">
+        <option value="yes">是</option>
+        <option value="no">否</option>
+    </select><br><br>
+
+    <!-- 是否存在不得减持情形 -->
+    <h3>是否存在不得减持情形（可多选）：</h3>
+    <label><input type="checkbox" id="illegalInvestigation1" value="illegalInvestigation1">因涉嫌与本上市公司有关的证券期货违法犯罪，被中国证监会立案调查或者被司法机关立案侦查，或者被行政处罚、判处刑罚未满6个月（大股东、董监高适用）</label><br>
+    <label><input type="checkbox" id="publicReprimand1" value="publicReprimand1">因涉及与本上市公司有关的违法违规，被证券交易所公开谴责未满3个月（大股东、董监高适用）</label><br>
+    <label><input type="checkbox" id="unpaidFine1" value="unpaidFine1">因涉及证券期货违法，被中国证监会行政处罚，尚未足额缴纳罚没款（但法律、行政法规另有规定，或者减持资金用于缴纳罚没款的除外）（大股东、董监高适用）</label><br>
+    <label><input type="checkbox" id="illegalInvestigation2" value="illegalInvestigation2">上市公司因涉嫌证券期货违法犯罪，被中国证监会立案调查或者被司法机关立案侦查，或者被行政处罚、判处刑罚未满6个月（控股股东、实际控制人适用）</label><br>
+    <label><input type="checkbox" id="majorViolationRisk2" value="majorViolationRisk2">上市公司可能触及重大违法强制退市情形，在证券交易所规定的限制转让期限内（控股股东、实际控制人适用）</label><br>
+    <label><input type="checkbox" id="lowCashDividend2" value="lowCashDividend2">最近三个已披露经审计的年度报告的会计年度未实施现金分红或者累计现金分红金额低于同期年均归属于上市公司股东净利润的30%（但净利润为负的会计年度不纳入计算）（控股股东、实际控制人适用，且拟通过集中竞价交易或大宗交易方式减持时适用）</label><br>
+    <label><input type="checkbox" id="belowNetAssetValue2" value="belowNetAssetValue2">最近二十个交易日中，任一日股票收盘价（向后复权）低于最近一个会计年度或者最近一期财务报告期末每股归属于上市公司股东的净资产（控股股东、实际控制人适用，且拟通过集中竞价交易或大宗交易方式减持时适用）</label><br>
+    <label><input type="checkbox" id="belowIssuePrice2" value="belowIssuePrice2">最近二十个交易日中，任一日股票收盘价（向后复权）低于首次公开发行时的股票发行价格（首次公开发行时的控股股东、实际控制人及其一致行动人适用，且拟通过集中竞价交易或大宗交易方式减持时适用）</label><br>
+    <label><input type="checkbox" id="resignedWithin6Months3" value="resignedWithin6Months3">本人离职后6个月内（董监高适用）</label><br><br>
+
+    <!-- 减持方式 -->
+    <label for="method">减持方式：</label>
+    <select id="method">
+        <option value="centralizedAuction">集中竞价交易</option>
+        <option value="bulkTransaction">大宗交易</option>
+        <option value="agreementTransfer">协议转让</option>
+    </select><br><br>
+
+    <!-- 拟减持时间区间 -->
+    <label for="startDate">拟减持时间区间（如适用）：</label><br>
+    <label for="startDate">开始日期：</label><input type="date" id="startDate"><br>
+    <label for="endDate">结束日期：</label><input type="date" id="endDate"><br><br>
+
+    <button onclick="calculate()">计算</button><br><br>
+
+    <div id="result"></div>
+
+    <script>
+function calculate() {
+    // 获取用户选择的值
+    const exchange = document.getElementById('exchange').value;
+    const identity = document.getElementById('identity').value;
+    const source = document.getElementById('source').value;
+    const isControlling = document.getElementById('isControlling').value === 'yes';
+    const illegalInvestigation1 = document.getElementById('illegalInvestigation1').checked;
+    const publicReprimand1 = document.getElementById('publicReprimand1').checked;
+    const unpaidFine1 = document.getElementById('unpaidFine1').checked;
+    const illegalInvestigation2 = document.getElementById('illegalInvestigation2').checked;
+    const majorViolationRisk2 = document.getElementById('majorViolationRisk2').checked;
+    const lowCashDividend2 = document.getElementById('lowCashDividend2').checked;
+    const belowNetAssetValue2 = document.getElementById('belowNetAssetValue2').checked;
+    const belowIssuePrice2 = document.getElementById('belowIssuePrice2').checked;
+    const resignedWithin6Months3 = document.getElementById('resignedWithin6Months3').checked;
+    const method = document.getElementById('method').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    // 初始化结果变量
+    let canReduce = true;
+    let reductionRatio = '';
+    let notice = '';
+    let reasons = [];
+
+    // 根据不同交易所和身份类型应用相应规则
+    if (exchange ==='szse') {
+        // 深圳证券交易所规则判断
+        if (identity ==='majorShareholder') {
+            if (source === 'centralizedAuctionBought') {
+                // 仅适用部分规则，这里判断是否存在不得减持情形
+                if (illegalInvestigation1 || publicReprimand1 || unpaidFine1) {
+                    canReduce = false;
+                    reasons.push(`大股东因涉嫌与本上市公司有关的证券期货违法犯罪，被中国证监会立案调查或者被司法机关立案侦查，或者被行政处罚、判处刑罚未满六个月；或因涉及与本上市公司有关的违法违规，被本所公开谴责未满三个月；或因涉及证券期货违法，被中国证监会行政处罚，尚未足额缴纳罚没款（但法律、行政法规另有规定或者减持资金用于缴纳罚没款的除外）时不得减持。依据：《深圳证券交易所上市公司自律监管指引第18号——股东及董事、监事、高级管理人员减持股份》第五条。`);
+                }
+            } else if (source === 'publicOfferingAcquired') {
+                // 适用其他规则，判断是否存在不得减持情形
+                if (illegalInvestigation1 || publicReprimand1 || unpaidFine1 || illegalInvestigation2 || majorViolationRisk2) {
+                    canReduce = false;
+                    reasons.push(`大股东因涉嫌与本上市公司有关的证券期货违法犯罪，被中国证监会立案调查或者被司法机关立案侦查，或者被行政处罚、判处刑罚未满六个月；或因涉及与本上市公司有关的违法违规，被本所公开谴责未满三个月；或因涉及证券期货违法，被中国证监会行政处罚，尚未足额缴纳罚没款（但法律、行政法规另有规定或者减持资金用于缴纳罚没款的除外）；或上市公司因涉嫌证券期货违法犯罪，被中国证监会立案调查或者被司法机关立案侦查，或者被行政处罚、判处刑罚未满六个月；或上市公司可能触及本所业务规则规定的重大违法强制退市情形时不得减持。依据：《深圳证券交易所上市公司自律监管指引第18号——股东及董事、监事、高级管理人员减持股份》第五条、第六条。`);
+                }
+            }
+        } else if (identity ==='specificShareholder') {
+            // 特定股东规则，这里暂未详细实现
+        } else if (identity === 'directorSupervisorOfficer') {
+            // 董监高规则，判断是否存在不得减持情形
+            if (resignedWithin6Months3 || illegalInvestigation1 || publicReprimand1 || unpaidFine1) {
+                canReduce = false;
+                reasons.push(`本人离职后6个月内；或因涉嫌与本上市公司有关的证券期货违法犯罪，被中国证监会立案调查或者被司法机关立案侦查，或者被行政处罚、判处刑罚未满6个月；或因涉及与本上市公司有关的违法违规，被证券交易所公开谴责未满3个月；或因涉及证券期货违法，被中国证监会行政处罚，尚未足额缴纳罚没款（但法律、行政法规另有规定，或者减持资金用于缴纳罚没款的除外）时不得减持。依据：《深圳证券交易所上市公司自律监管指引第18号——股东及董事、监事、高级管理人员减持股份》第九条。`);
+            }
+        }
+
+        if (isControlling) {
+            // 控股股东/实际控制人额外规则，判断是否存在不得减持情形
+            if (lowCashDividend2 || belowNetAssetValue2 || belowIssuePrice2) {
+                canReduce = false;
+                reasons.push(`最近三个已披露经审计的年度报告的会计年度未实施现金分红或者累计现金分红金额低于同期年均归属于上市公司股东净利润的30%（但净利润为负的会计年度不纳入计算）；或最近二十个交易日中，任一日股票收盘价（向后复权）低于最近一个会计年度或者最近一期财务报告期末每股归属于上市公司股东的净资产；或最近二十个交易日中，任一日股票收盘价（向后复权）低于首次公开发行时的股票发行价格时不得通过集中竞价交易或大宗交易方式减持。依据：《深圳证券交易所上市公司自律监管指引第18号——股东及董事、监事、高级管理人员减持股份》第七条、第八条。`);
+            }
+        }
+
+        // 根据减持方式计算减持比例（简单示例，未考虑复杂情况）
+        if (canReduce) {
+            if (method === 'centralizedAuction') {
+                reductionRatio = '在任意连续90日内，减持股份的总数不得超过公司股份总数的1%';
+            } else if (method === 'bulkTransaction') {
+                reductionRatio = '在任意连续90日内，减持股份的总数不得超过公司股份总数的2%';
+            } else if (method === 'agreementTransfer') {
+                reductionRatio = '单个受让方的受让比例不得低于公司股份总数的5%';
+            }
+
+            // 减持后注意事项
+            notice += '1. 若通过集中竞价交易或大宗交易方式减持，需在减持计划实施完毕或者减持时间区间届满后的两个交易日内向交易所报告，并披露减持计划完成公告。\n';
+            notice += '2. 通过协议转让方式受让股份的，受让方在受让后6个月内不得减持其所受让的股份。\n';
+            notice += '3. 大股东通过协议转让方式减持股份导致其不再具有大股东身份的，应当在减持后6个月内继续遵守相关规定（如减持计划披露等规定）。控股股东、实际控制人通过协议转让方式减持股份导致其不再具有控股股东、实际控制人身份的，还应当在减持后6个月内继续遵守不得通过集中竞价交易或大宗交易方式减持的规定。\n';
+            notice += '4. 上市公司股东、董监高减持股份应当遵守法律法规、交易所规则，不得通过任何方式或者安排规避规定，否则可能面临监管措施或纪律处分。\n';
+        }
+    } else if (exchange ==='sse') {
+        // 上海证券交易所规则判断
+        if (identity ==='majorShareholder') {
+            if (source === 'centralizedAuctionBought') {
+                if (illegalInvestigation1 || publicReprimand1 || unpaidFine1) {
+                    canReduce = false;
+                    reasons.push(`大股东因涉嫌与本上市公司有关的证券期货违法犯罪，被中国证监会立案调查或者被司法机关立案侦查，或者被行政处罚、判处刑罚未满6个月；或因涉及与本上市公司有关的违法违规，被证券交易所公开谴责未满3个月；或因涉及证券期货违法，被中国证监会行政处罚，尚未足额缴纳罚没款（但法律、行政法规另有规定，或者减持资金用于缴纳罚没款的除外）时不得减持。依据：《上海证券交易所上市公司自律监管指引第15号——股东及董事、监事、高级管理人员减持股份》第五条。`);
+                }
+            } else if (source === 'publicOfferingAcquired') {
+                if (illegalInvestigation1 || publicReprimand1 || unpaidFine1 || illegalInvestigation2 || majorViolationRisk2) {
+                    canReduce = false;
+                    reasons.push(`大股东因涉嫌与本上市公司有关的证券期货违法犯罪，被中国证监会立案调查或者被司法机关立案侦查，或者被行政处罚、判处刑罚未满6个月；或因涉及与本上市公司有关的违法违规，被证券交易所公开谴责未满3个月；或因涉及证券期货违法，被中国证监会行政处罚，尚未足额缴纳罚没款（但法律、行政法规另有规定，或者减持资金用于缴纳罚没款的除外）；或上市公司因涉嫌证券期货违法犯罪，被中国证监会立案调查或者被司法机关立案侦查，或者被行政处罚、判处刑罚未满6个月；或上市公司可能触及本所业务规则规定的重大违法强制退市情形时不得减持。依据：《上海证券交易所上市公司自律监管指引第15号——股东及董事、监事、高级管理人员减持股份》第五条、第六条。`);
+                }
+            }
+        } else if (identity ==='specificShareholder') {
+            // 特定股东规则，这里暂未详细实现
+        } else if (identity === 'directorSupervisorOfficer') {
+            if (resignedWithin6Months3 || illegalInvestigation1 || publicReprimand1 || unpaidFine1) {
+                canReduce = false;
+                reasons.push(`本人离职后6个月内；或因涉嫌与本上市公司有关的证券期货违法犯罪，被中国证监会立案调查或者被司法机关立案侦查，或者被行政处罚、判处刑罚未满6个月；或因涉及与本上市公司有关的违法违规，被证券交易所公开谴责未满3个月；或因涉及证券期货违法，被中国证监会行政处罚，尚未足额缴纳罚没款（但法律、行政法规另有规定，或者减持资金用于缴纳罚没款的除外）时不得减持。依据：《上海证券交易所上市公司自律监管指引第15号——股东及董事、监事、高级管理人员减持股份》第九条。`);
+            }
+        }
+
+        if (isControlling) {
+            if (lowCashDividend2 || belowNetAssetValue2 || belowIssuePrice2) {
+                canReduce = false;
+                reasons.push(`最近三个已披露经审计的年度报告的会计年度未实施现金分红或者累计现金分红金额低于同期年均归属于上市公司股东净利润的30%（但净利润为负的会计年度不纳入计算）；或最近二十个交易日中，任一日股票收盘价（向后复权）低于最近一个会计年度或者最近一期财务报告期末每股归属于上市公司股东的净资产；或最近二十个交易日中，任一日股票收盘价（向后复权）低于首次公开发行时的股票发行价格时不得通过集中竞价交易或大宗交易方式减持。依据：《上海证券交易所上市公司自律监管指引第15号——股东及董事、监事、高级管理人员减持股份》第七条、第八条。`);
+            }
+        }
+
+        if (canReduce) {
+            if (method === 'centralizedAuction') {
+                reductionRatio = '在任意连续90日内，减持股份的总数不得超过公司股份总数的1%';
+            } else if (method === 'bulkTransaction') {
+                reductionRatio = '在任意连续90日内，减持股份的总数不得超过公司股份总数的2%';
+            } else if (method === 'agreementTransfer') {
+                reductionRatio = '单个受让方的受让比例不得低于公司股份总数的5%';
+            }
+
+            // 减持后注意事项
+            notice += '1. 若通过集中竞价交易或大宗交易方式减持，需在减持计划实施完毕或者减持时间区间届满后的两个交易日内向交易所报告，并披露减持计划完成公告。\n';
+            notice += '2. 通过协议转让方式受让股份的，受让方在受让后6个月内不得减持其所受让的股份。\n';
+            notice += '3. 大股东通过协议转让方式减持股份导致其不再具有大股东身份的，应当在减持后6个月内继续遵守本指引第十条至第十三条的规定。控股股东、实际控制人通过协议转让方式减持股份导致其不再具有控股股东、实际控制人身份的，还应当在减持后6个月内继续遵守本指引第七条的规定。\n';
+            notice += '4. 上市公司股东、董监高减持股份应当遵守法律法规、交易所规则，不得通过任何方式或者安排规避规定，否则可能面临监管措施或纪律处分。如违规减持行为导致股价异常波动、严重影响市场交易秩序或者损害投资者利益的，本所将从重予以处分。减持行为涉嫌违反法律法规的，本所按规定报中国证监会查处。\n';
+        }
+    }
+
+    // 显示结果
+    const resultDiv = document.getElementById('result');
+    if (canReduce) {
+        resultDiv.innerHTML = `是否可以减持：可以<br>减持比例（如可以减持）：${reductionRatio}<br>减持后注意事项：<br>${notice}<br><br>判断依据：<br>${reasons.join('<br>')}`;
+    } else {
+        resultDiv.innerHTML = `是否可以减持：不可以<br><br>判断依据：<br>${reasons.join('<br>')}`;
+    }
+}
+    </script>
+</body>
+
+</html>
